@@ -2,6 +2,7 @@
 
 - Patched the bundled eufy-security-client package so T85V0 and T85F0 locks are classified as locks instead of doorbells/cameras.
 - Added T85F0/type 205 metadata and exposed a default `locked` property so Home Assistant can create lock entities.
+- Removed the upstream Docker image pin so the add-on builds from this fork's patched Dockerfile.
 
 ## 1.9.7
 - Updated eufy-security-ws to version [`1.9.7`](https://github.com/bropat/eufy-security-ws/releases/tag/1.9.7)
