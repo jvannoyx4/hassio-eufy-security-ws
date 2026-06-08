@@ -1,3 +1,8 @@
+## 2.1.0-1
+
+- Patched the bundled eufy-security-client package so T85V0 and T85F0 locks are classified as locks instead of doorbells/cameras.
+- Added T85F0/type 205 metadata and exposed a default `locked` property so Home Assistant can create lock entities.
+
 ## 1.9.7
 - Updated eufy-security-ws to version [`1.9.7`](https://github.com/bropat/eufy-security-ws/releases/tag/1.9.7)
 

@@ -13,6 +13,9 @@ RUN \
     && npm install --force \
     "eufy-security-ws@${EUFY_SECURITY_WS_VERSION}"
 
+COPY patch-eufy-client.js /usr/src/app/patch-eufy-client.js
+RUN node /usr/src/app/patch-eufy-client.js
+
 COPY run.sh /
 RUN chmod a+x /run.sh
 WORKDIR /data
