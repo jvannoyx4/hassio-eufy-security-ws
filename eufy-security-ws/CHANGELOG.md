@@ -1,3 +1,7 @@
+## 2.1.0-4
+
+- Connect T85 lock stations before refreshing lock parameters and lock status so the read-only P2P status query has an active station session.
+
 ## 2.1.0-3
 
 - Added a read-only lock status refresh when websocket clients start listening so T85V0/T85F0 lock status can be populated from the eufy client instead of remaining unknown.

@@ -27,7 +27,7 @@ See Documentation tab for more details.
 [armv7-shield]: https://img.shields.io/badge/armv7-yes-green.svg
 [i386-shield]: https://img.shields.io/badge/i386-yes-green.svg
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2026.svg
-[release-shield]: https://img.shields.io/badge/version-v2.1.0--3-blue.svg
+[release-shield]: https://img.shields.io/badge/version-v2.1.0--4-blue.svg
 [release]: https://github.com/jvannoyx4/hassio-eufy-security-ws
 Join us on Discord:
 
