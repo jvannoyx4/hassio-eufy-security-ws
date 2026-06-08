@@ -37,12 +37,6 @@ replaceOnce(
 );
 
 replaceOnce(
-  typesPath,
-  '    type: "boolean",\n};\nexports.DeviceLockedSmartSafeProperty = {',
-  '    type: "boolean",\n    default: false,\n};\nexports.DeviceLockedSmartSafeProperty = {',
-);
-
-replaceOnce(
   devicePath,
   '            else if (property.name === types_1.PropertyName.Model && this.isLockWifiT85V0()) {\n                return "T85V0";\n            }',
   '            else if (property.name === types_1.PropertyName.Model && this.isLockWifiT85V0()) {\n                return this.getSerial().startsWith("T85F0") ? "T85F0" : "T85V0";\n            }',
@@ -73,7 +67,6 @@ replaceOnce(
 );
 
 ensureContains(typesPath, 'DeviceType["LOCK_85F0"] = 205');
-ensureContains(typesPath, 'default: false');
 ensureContains(devicePath, 'serialnumber.startsWith("T85F0")');
 ensureContains(devicePath, 'Smart Lock (T85F0)');
 

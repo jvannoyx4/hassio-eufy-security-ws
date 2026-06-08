@@ -1,3 +1,7 @@
+## 2.1.0-2
+
+- Removed the synthetic `locked: false` fallback for T85V0/T85F0 locks because it reported unknown lock state as unlocked.
+
 ## 2.1.0-1
 
 - Patched the bundled eufy-security-client package so T85V0 and T85F0 locks are classified as locks instead of doorbells/cameras.
