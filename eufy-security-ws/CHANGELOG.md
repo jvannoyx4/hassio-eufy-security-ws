@@ -1,3 +1,7 @@
+## 2.1.0-5
+
+- Translate T85 cloud lock-state params into normal `locked` and `lockStatus` device properties when the P2P lock-status query does not return a value.
+
 ## 2.1.0-4
 
 - Connect T85 lock stations before refreshing lock parameters and lock status so the read-only P2P status query has an active station session.

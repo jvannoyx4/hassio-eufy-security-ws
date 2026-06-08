@@ -73,11 +73,25 @@ ensureContains(devicePath, 'Smart Lock (T85F0)');
 
 replaceOnce(
   wsServerPath,
+  'RTSPPropertyNotEnabledError, } from "eufy-security-client";',
+  'RTSPPropertyNotEnabledError, PropertyName, } from "eufy-security-client";',
+);
+
+replaceOnce(
+  wsServerPath,
   '                this.receiveEvents = true;\n                if (DriverMessageHandler.tfa) {',
   '                this.receiveEvents = true;\n                void (async () => {\n                    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));\n                    for (const station of await this.driver.getStations()) {\n                        try {\n                            const serial = station.getSerial();\n                            if (!serial.startsWith("T85V0") && !serial.startsWith("T85F0"))\n                                continue;\n                            if (!station.isConnected())\n                                await station.connect().catch(() => undefined);\n                            await sleep(5000);\n                            if (typeof station.getLockParameters === "function")\n                                station.getLockParameters();\n                            await sleep(5000);\n                            if (typeof station.getLockStatus === "function")\n                                station.getLockStatus();\n                            await sleep(10000);\n                            if (typeof station.getLockStatus === "function")\n                                station.getLockStatus();\n                        }\n                        catch (_err) { }\n                    }\n                })();\n                if (DriverMessageHandler.tfa) {',
 );
 
+replaceOnce(
+  wsServerPath,
+  '                    }\n                })();\n                if (DriverMessageHandler.tfa) {',
+  '                    }\n                    for (const device of await this.driver.getDevices()) {\n                        try {\n                            const serial = device.getSerial();\n                            if (!serial.startsWith("T85V0") && !serial.startsWith("T85F0"))\n                                continue;\n                            const params = device.rawDevice?.params ?? [];\n                            const rawParam = (paramType) => params.find((param) => param.param_type === paramType)?.param_value;\n                            const lockedValue = serial.startsWith("T85V0") ? rawParam(6012) : (rawParam(6607) ?? rawParam(6609));\n                            if (lockedValue !== "0" && lockedValue !== "1")\n                                continue;\n                            const locked = lockedValue === "1";\n                            device.updateProperty(PropertyName.DeviceLockStatus, locked ? 4 : 3);\n                            device.updateProperty(PropertyName.DeviceLocked, locked);\n                        }\n                        catch (_err) { }\n                    }\n                })();\n                if (DriverMessageHandler.tfa) {',
+);
+
 ensureContains(wsServerPath, "station.getLockParameters()");
 ensureContains(wsServerPath, "station.getLockStatus()");
+ensureContains(wsServerPath, "PropertyName.DeviceLocked");
+ensureContains(wsServerPath, "rawParam(6012)");
 
 console.log("Patched eufy-security-client/ws for T85V0/T85F0 lock discovery and lock status refresh");
