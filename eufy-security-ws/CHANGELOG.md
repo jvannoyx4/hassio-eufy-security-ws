@@ -1,3 +1,7 @@
+## 2.1.0-3
+
+- Added a read-only lock status refresh when websocket clients start listening so T85V0/T85F0 lock status can be populated from the eufy client instead of remaining unknown.
+
 ## 2.1.0-2
 
 - Removed the synthetic `locked: false` fallback for T85V0/T85F0 locks because it reported unknown lock state as unlocked.

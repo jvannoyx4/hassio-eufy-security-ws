@@ -4,6 +4,7 @@ const path = require("path");
 const clientRoot = path.join(__dirname, "node_modules", "eufy-security-client", "build", "http");
 const typesPath = path.join(clientRoot, "types.js");
 const devicePath = path.join(clientRoot, "device.js");
+const wsServerPath = path.join(__dirname, "node_modules", "eufy-security-ws", "dist", "lib", "server.js");
 
 function replaceOnce(filePath, search, replacement) {
   const original = fs.readFileSync(filePath, "utf8");
@@ -70,4 +71,12 @@ ensureContains(typesPath, 'DeviceType["LOCK_85F0"] = 205');
 ensureContains(devicePath, 'serialnumber.startsWith("T85F0")');
 ensureContains(devicePath, 'Smart Lock (T85F0)');
 
-console.log("Patched eufy-security-client for T85V0/T85F0 lock discovery");
+replaceOnce(
+  wsServerPath,
+  '                this.receiveEvents = true;\n                if (DriverMessageHandler.tfa) {',
+  '                this.receiveEvents = true;\n                for (const station of await this.driver.getStations()) {\n                    try {\n                        if (typeof station.getLockStatus === "function")\n                            station.getLockStatus();\n                    }\n                    catch (_err) { }\n                }\n                if (DriverMessageHandler.tfa) {',
+);
+
+ensureContains(wsServerPath, "station.getLockStatus()");
+
+console.log("Patched eufy-security-client/ws for T85V0/T85F0 lock discovery and lock status refresh");
