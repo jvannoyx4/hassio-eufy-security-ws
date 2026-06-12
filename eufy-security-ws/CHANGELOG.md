@@ -1,3 +1,7 @@
+## 2.1.0-8
+
+- Send T85 smart-lock lock/unlock control on channel 0 to match the T85 status and parameter command path.
+
 ## 2.1.0-7
 
 - Initialize the lock gateway P2P path for T85 smart locks before queued status/control commands are sent.
