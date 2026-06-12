@@ -4,6 +4,7 @@ const path = require("path");
 const clientRoot = path.join(__dirname, "node_modules", "eufy-security-client", "build", "http");
 const typesPath = path.join(clientRoot, "types.js");
 const devicePath = path.join(clientRoot, "device.js");
+const wsDeviceMessageHandlerPath = path.join(__dirname, "node_modules", "eufy-security-ws", "dist", "lib", "device", "message_handler.js");
 const wsServerPath = path.join(__dirname, "node_modules", "eufy-security-ws", "dist", "lib", "server.js");
 
 function replaceOnce(filePath, search, replacement) {
@@ -67,9 +68,32 @@ replaceOnce(
   '    static isLockWifiT85V0(type, serialnumber) {\n        if ((type == types_1.DeviceType.LOCK_85V0 && (serialnumber === "" || serialnumber.startsWith("T85V0"))) ||\n            (type == types_1.DeviceType.LOCK_85F0 && (serialnumber === "" || serialnumber.startsWith("T85F0"))))\n            return true;\n        return false;\n    }',
 );
 
+replaceOnce(
+  typesPath,
+  '    [DeviceType.MOTION_SENSOR]: [],',
+  '    [DeviceType.LOCK_85V0]: [CommandName.DeviceUnlock],\n' +
+    '    [DeviceType.LOCK_85F0]: [CommandName.DeviceUnlock],\n' +
+    '    [DeviceType.MOTION_SENSOR]: [],',
+);
+
 ensureContains(typesPath, 'DeviceType["LOCK_85F0"] = 205');
+ensureContains(typesPath, "[DeviceType.LOCK_85F0]: [CommandName.DeviceUnlock]");
 ensureContains(devicePath, 'serialnumber.startsWith("T85F0")');
 ensureContains(devicePath, 'Smart Lock (T85F0)');
+
+replaceOnce(
+  wsDeviceMessageHandlerPath,
+  '            case DeviceCommand.setProperty:\n                await driver\n                    .setDeviceProperty(serialNumber, message.name, message.value)\n                    .catch((error) => {\n                    throw error;\n                });\n                return client.schemaVersion >= 13 ? { async: true } : {};',
+  '            case DeviceCommand.setProperty:\n                if (message.name === "locked" && (device.getSerial().startsWith("T85V0") || device.getSerial().startsWith("T85F0"))) {\n                    if (!station.isConnected())\n                        await station.connect().catch(() => undefined);\n                    await new Promise((resolve) => setTimeout(resolve, 5000));\n                }\n                await driver\n                    .setDeviceProperty(serialNumber, message.name, message.value)\n                    .catch((error) => {\n                    throw error;\n                });\n                return client.schemaVersion >= 13 ? { async: true } : {};',
+);
+
+replaceOnce(
+  wsDeviceMessageHandlerPath,
+  '            case DeviceCommand.unlock:\n                if (client.schemaVersion >= 13) {\n                    station.unlock(device);\n                    return { async: true };\n                }\n                else {\n                    throw new UnknownCommandError(command);\n                }',
+  '            case DeviceCommand.unlock:\n                if (client.schemaVersion >= 13) {\n                    if (device.getSerial().startsWith("T85V0") || device.getSerial().startsWith("T85F0")) {\n                        if (!station.isConnected())\n                            await station.connect().catch(() => undefined);\n                        await new Promise((resolve) => setTimeout(resolve, 5000));\n                        station.lockDevice(device, false);\n                    }\n                    else {\n                        station.unlock(device);\n                    }\n                    return { async: true };\n                }\n                else {\n                    throw new UnknownCommandError(command);\n                }',
+);
+
+ensureContains(wsDeviceMessageHandlerPath, 'station.lockDevice(device, false)');
 
 replaceOnce(
   wsServerPath,
@@ -94,4 +118,4 @@ ensureContains(wsServerPath, "station.getLockStatus()");
 ensureContains(wsServerPath, "PropertyName.DeviceLocked");
 ensureContains(wsServerPath, "rawParam(6012)");
 
-console.log("Patched eufy-security-client/ws for T85V0/T85F0 lock discovery and lock status refresh");
+console.log("Patched eufy-security-client/ws for T85V0/T85F0 lock discovery, status, and unlock");

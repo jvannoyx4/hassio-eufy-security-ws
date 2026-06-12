@@ -1,3 +1,7 @@
+## 2.1.0-6
+
+- Advertise T85 lock unlock support and route websocket unlock requests through the smart-lock `locked=false` command path after warming the station connection.
+
 ## 2.1.0-5
 
 - Translate T85 cloud lock-state params into normal `locked` and `lockStatus` device properties when the P2P lock-status query does not return a value.
