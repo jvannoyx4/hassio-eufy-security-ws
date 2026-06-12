@@ -1,3 +1,7 @@
+## 2.1.0-7
+
+- Initialize the lock gateway P2P path for T85 smart locks before queued status/control commands are sent.
+
 ## 2.1.0-6
 
 - Advertise T85 lock unlock support and route websocket unlock requests through the smart-lock `locked=false` command path after warming the station connection.

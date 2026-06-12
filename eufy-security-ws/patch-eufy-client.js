@@ -4,6 +4,7 @@ const path = require("path");
 const clientRoot = path.join(__dirname, "node_modules", "eufy-security-client", "build", "http");
 const typesPath = path.join(clientRoot, "types.js");
 const devicePath = path.join(clientRoot, "device.js");
+const p2pSessionPath = path.join(__dirname, "node_modules", "eufy-security-client", "build", "p2p", "session.js");
 const wsDeviceMessageHandlerPath = path.join(__dirname, "node_modules", "eufy-security-ws", "dist", "lib", "device", "message_handler.js");
 const wsServerPath = path.join(__dirname, "node_modules", "eufy-security-ws", "dist", "lib", "server.js");
 
@@ -82,6 +83,14 @@ ensureContains(devicePath, 'serialnumber.startsWith("T85F0")');
 ensureContains(devicePath, 'Smart Lock (T85F0)');
 
 replaceOnce(
+  p2pSessionPath,
+  '                else if (device_1.Device.isLockWifiR10(this.rawStation.device_type) ||\n                    device_1.Device.isLockWifiR20(this.rawStation.device_type)) {',
+  '                else if (device_1.Device.isLockWifiR10(this.rawStation.device_type) ||\n                    device_1.Device.isLockWifiR20(this.rawStation.device_type) ||\n                    device_1.Device.isLockWifiT8506(this.rawStation.device_type) ||\n                    device_1.Device.isLockWifiT8502(this.rawStation.device_type) ||\n                    device_1.Device.isLockWifiT8510P(this.rawStation.device_type, this.rawStation.station_sn) ||\n                    device_1.Device.isLockWifiT8520P(this.rawStation.device_type, this.rawStation.station_sn) ||\n                    device_1.Device.isLockWifiT85L0(this.rawStation.device_type) ||\n                    device_1.Device.isLockWifiT85V0(this.rawStation.device_type, this.rawStation.station_sn)) {',
+);
+
+ensureContains(p2pSessionPath, "Device.isLockWifiT85V0(this.rawStation.device_type, this.rawStation.station_sn)");
+
+replaceOnce(
   wsDeviceMessageHandlerPath,
   '            case DeviceCommand.setProperty:\n                await driver\n                    .setDeviceProperty(serialNumber, message.name, message.value)\n                    .catch((error) => {\n                    throw error;\n                });\n                return client.schemaVersion >= 13 ? { async: true } : {};',
   '            case DeviceCommand.setProperty:\n                if (message.name === "locked" && (device.getSerial().startsWith("T85V0") || device.getSerial().startsWith("T85F0"))) {\n                    if (!station.isConnected())\n                        await station.connect().catch(() => undefined);\n                    await new Promise((resolve) => setTimeout(resolve, 5000));\n                }\n                await driver\n                    .setDeviceProperty(serialNumber, message.name, message.value)\n                    .catch((error) => {\n                    throw error;\n                });\n                return client.schemaVersion >= 13 ? { async: true } : {};',
@@ -118,4 +127,4 @@ ensureContains(wsServerPath, "station.getLockStatus()");
 ensureContains(wsServerPath, "PropertyName.DeviceLocked");
 ensureContains(wsServerPath, "rawParam(6012)");
 
-console.log("Patched eufy-security-client/ws for T85V0/T85F0 lock discovery, status, and unlock");
+console.log("Patched eufy-security-client/ws for T85V0/T85F0 lock discovery, P2P setup, status, and unlock");
